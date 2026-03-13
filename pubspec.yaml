@@ -1,0 +1,36 @@
+name: offline_learning_assistant
+description: A new Flutter project.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Voice Input ke liye
+  speech_to_text: ^6.6.0
+  
+  # Voice Output ke liye
+  flutter_tts: ^3.8.3
+  
+  # Animated Mic Button ke liye
+  avatar_glow: ^3.0.1
+  
+  # 🔥 API calls ke liye (Ollama ke liye)
+  http: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  # Assets (images, fonts) agar future mein add karo to
+  # assets:
+  #   - assets/images/
+  #   - assets/fonts/
