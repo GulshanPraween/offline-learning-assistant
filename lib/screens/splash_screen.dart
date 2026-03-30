@@ -67,19 +67,19 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
       end: Offset.zero,
     ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
 
-    _floatAnimation = Tween<double>(begin: -5, end: 5).animate(
+    _floatAnimation = Tween<double>(begin: -8, end: 8).animate(
       CurvedAnimation(parent: _bookController, curve: Curves.easeInOut),
     );
 
-    _rotateAnimation = Tween<double>(begin: -0.02, end: 0.02).animate(
+    _rotateAnimation = Tween<double>(begin: -0.03, end: 0.03).animate(
       CurvedAnimation(parent: _bookController, curve: Curves.easeInOut),
     );
 
-    _bookOpenAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+    _bookOpenAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
       CurvedAnimation(parent: _bookController, curve: Curves.easeInOut),
     );
 
-    _buttonPulseAnimation = Tween<double>(begin: 0.9, end: 1.1).animate(
+    _buttonPulseAnimation = Tween<double>(begin: 0.9, end: 1.2).animate(
       CurvedAnimation(parent: _buttonController, curve: Curves.easeInOut),
     );
 
@@ -115,45 +115,39 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                const Color(0xFF2C1A4D), // Dark Purple
-                const Color(0xFF4A2B6E), // Medium Purple
-                const Color(0xFF6B3F8C), // Light Purple
-                const Color(0xFF8A5DB0), // Lavender
+              colors: const [
+                Color(0xFF2C1A4D),
+                Color(0xFF4A2B6E),
+                Color(0xFF6B3F8C),
+                Color(0xFF8A5DB0),
               ],
-              stops: const [0.1, 0.4, 0.7, 0.9],
+              stops: [0.1, 0.4, 0.7, 0.9],
             ),
           ),
           child: Stack(
             children: [
-              // ✨ SPARKLES - BIG BOLD FLOATING
+              // Background sparkles
               ...List.generate(40, (index) {
                 final randomX = (index * 13) % 100 / 100;
                 final randomY = (index * 17) % 100 / 100;
                 final randomDelay = index * 0.1;
                 final randomSize = 10 + (index % 15);
-                final randomOpacity = 0.3 + (index % 7) * 0.1;
+                final randomOpacity = 0.2 + (index % 6) * 0.1;
                 
-                final List<IconData> sparkleIcons = [
+                final List<IconData> sparkleIcons = const [
                   Icons.star,
                   Icons.star_border,
-                  Icons.star_half,
                   Icons.auto_awesome,
-                  Icons.auto_awesome_mosaic,
-                  Icons.auto_awesome_motion,
                   Icons.wb_sunny,
-                  Icons.circle,
                 ];
                 
-                final List<Color> sparkleColors = [
+                final List<Color> sparkleColors = const [
                   Colors.yellow,
                   Colors.amber,
                   Colors.orange,
                   Colors.pink,
                   Colors.cyan,
-                  Colors.lightBlue,
                   Colors.white,
-                  Colors.purple.shade200,
                 ];
                 
                 return AnimatedBuilder(
@@ -178,46 +172,17 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 );
               }),
 
-              // ✨ FLOATING CIRCLES
-              ...List.generate(15, (index) {
-                final randomX = (index * 23) % 100 / 100;
-                final randomY = (index * 29) % 100 / 100;
-                final randomSize = 30 + (index * 10);
-                
-                return AnimatedBuilder(
-                  animation: index % 2 == 0 ? _sparkleController1 : _sparkleController2,
-                  builder: (context, child) {
-                    return Positioned(
-                      top: size.height * randomY + (sin((_sparkleController1.value + index) * 3) * 15),
-                      left: size.width * randomX + (cos((_sparkleController2.value + index) * 3) * 15),
-                      child: Container(
-                        width: randomSize.toDouble(),
-                        height: randomSize.toDouble(),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.white.withOpacity(0.03),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.1),
-                            width: 1,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                );
-              }),
-
-              // MAIN CONTENT
+              // Main Content
               Center(
                 child: SingleChildScrollView(
                   physics: const NeverScrollableScrollPhysics(),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // SMART LEARNING TEXT - BOLD
+                        // SMART LEARNING TEXT
                         SlideTransition(
                           position: _slideAnimation,
                           child: Column(
@@ -225,20 +190,20 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                             children: [
                               ShaderMask(
                                 shaderCallback: (bounds) => LinearGradient(
-                                  colors: [
+                                  colors: const [
                                     Colors.yellow,
                                     Colors.white,
                                     Colors.amber,
                                   ],
                                 ).createShader(bounds),
-                                child: const Text(
+                                child: Text(
                                   'SMART',
                                   style: TextStyle(
-                                    fontSize: 48,
+                                    fontSize: isSmallScreen ? 40 : 48,
                                     fontWeight: FontWeight.w900,
                                     color: Colors.white,
                                     letterSpacing: 6,
-                                    shadows: [
+                                    shadows: const [
                                       Shadow(
                                         color: Colors.purple,
                                         blurRadius: 25,
@@ -248,14 +213,14 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                   ),
                                 ),
                               ),
-                              const Text(
+                              Text(
                                 'LEARNING',
                                 style: TextStyle(
-                                  fontSize: 52,
+                                  fontSize: isSmallScreen ? 44 : 52,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   letterSpacing: 5,
-                                  shadows: [
+                                  shadows: const [
                                     Shadow(
                                       color: Colors.purple,
                                       blurRadius: 25,
@@ -272,354 +237,285 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           ),
                         ),
                         
-                        SizedBox(height: isSmallScreen ? 20 : 25),
+                        SizedBox(height: isSmallScreen ? 25 : 35),
                         
-                        // 📚 3D OPEN BOOK WITH VISIBLE ICONS
-                        FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: ScaleTransition(
-                            scale: _scaleAnimation,
-                            child: AnimatedBuilder(
-                              animation: Listenable.merge([_floatAnimation, _rotateAnimation, _bookOpenAnimation]),
-                              builder: (context, child) {
-                                return Transform.translate(
-                                  offset: Offset(0, _floatAnimation.value),
-                                  child: Transform.rotate(
-                                    angle: _rotateAnimation.value,
-                                    child: Container(
-                                      width: isSmallScreen ? size.width * 0.45 : size.width * 0.3,
-                                      height: isSmallScreen ? size.width * 0.45 : size.width * 0.3,
-                                      decoration: BoxDecoration(
-                                        gradient: RadialGradient(
-                                          colors: [
-                                            Colors.purple.shade300,
-                                            Colors.purple.shade500,
-                                            Colors.purple.shade700,
-                                          ],
+                        // Book with Sparkles - BADA KAR DIYA
+                        SizedBox(
+                          height: isSmallScreen ? 200 : 280,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              // Book Sparkles - DISTANCE BADHA DIYA
+                              ...List.generate(8, (index) {
+                                final angle = (index * 45 * pi / 180) + (_sparkleController1.value * 2 * pi);
+                                final distance = isSmallScreen ? 80 : 120;  // 🔥 PEHLE 50/70 THA, AB 80/120
+                                final x = cos(angle) * distance;
+                                final y = sin(angle) * distance;
+                                
+                                return AnimatedBuilder(
+                                  animation: _sparkleController1,
+                                  builder: (context, child) {
+                                    return Positioned(
+                                      left: (isSmallScreen ? 100 : 140) + x,
+                                      top: (isSmallScreen ? 100 : 140) + y,
+                                      child: Opacity(
+                                        opacity: 0.5 + (sin(_sparkleController1.value * 2 * pi + index) * 0.3),
+                                        child: Transform.scale(
+                                          scale: 0.8 + (sin(_sparkleController2.value * 2 * pi + index) * 0.2),
+                                          child: Icon(
+                                            Icons.auto_awesome,
+                                            color: Colors.yellow,
+                                            size: isSmallScreen ? 16 : 20,
+                                          ),
                                         ),
-                                        shape: BoxShape.circle,
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.purple.withOpacity(0.5),
-                                            blurRadius: 30,
-                                            spreadRadius: 5,
-                                          ),
-                                          BoxShadow(
-                                            color: Colors.amber.withOpacity(0.3),
-                                            blurRadius: 40,
-                                            spreadRadius: 8,
-                                          ),
-                                        ],
                                       ),
-                                      child: Stack(
-                                        alignment: Alignment.center,
-                                        children: [
-                                          // Left page
-                                          Transform.translate(
-                                            offset: Offset(-18 * _bookOpenAnimation.value, 0),
-                                            child: Container(
-                                              width: isSmallScreen ? size.width * 0.2 : size.width * 0.14,
-                                              height: isSmallScreen ? size.width * 0.26 : size.width * 0.18,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: const BorderRadius.only(
-                                                  topLeft: Radius.circular(15),
-                                                  bottomLeft: Radius.circular(15),
-                                                  topRight: Radius.circular(8),
-                                                  bottomRight: Radius.circular(8),
-                                                ),
-                                                boxShadow: const [
-                                                  BoxShadow(
-                                                    color: Colors.black26,
-                                                    blurRadius: 8,
-                                                    offset: Offset(3, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Stack(
-                                                children: [
-                                                  // Page lines
-                                                  Positioned(
-                                                    left: 10,
-                                                    top: 12,
-                                                    child: Container(
-                                                      width: 30,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    left: 10,
-                                                    top: 28,
-                                                    child: Container(
-                                                      width: 25,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    left: 10,
-                                                    top: 44,
-                                                    child: Container(
-                                                      width: 20,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    left: 10,
-                                                    top: 60,
-                                                    child: Container(
-                                                      width: 15,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    left: 10,
-                                                    top: 76,
-                                                    child: Container(
-                                                      width: 10,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  
-                                                  // MATH SYMBOLS - BIG VISIBLE
-                                                  Positioned(
-                                                    right: 5,
-                                                    top: 5,
-                                                    child: Text('+', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
-                                                  ),
-                                                  Positioned(
-                                                    left: 25,
-                                                    top: 15,
-                                                    child: Text('−', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 15,
-                                                    top: 30,
-                                                    child: Text('×', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
-                                                  ),
-                                                  Positioned(
-                                                    left: 30,
-                                                    top: 40,
-                                                    child: Text('÷', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 25,
-                                                    top: 55,
-                                                    child: Text('=', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
-                                                  ),
-                                                  Positioned(
-                                                    left: 15,
-                                                    top: 65,
-                                                    child: Text('π', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 8,
-                                                    top: 80,
-                                                    child: Text('√', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
-                                                  ),
-                                                  Positioned(
-                                                    left: 35,
-                                                    top: 90,
-                                                    child: Text('∞', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.purple.shade700)),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          
-                                          // Right page
-                                          Transform.translate(
-                                            offset: Offset(18 * _bookOpenAnimation.value, 0),
-                                            child: Container(
-                                              width: isSmallScreen ? size.width * 0.2 : size.width * 0.14,
-                                              height: isSmallScreen ? size.width * 0.26 : size.width * 0.18,
-                                              decoration: BoxDecoration(
-                                                color: Colors.white,
-                                                borderRadius: const BorderRadius.only(
-                                                  topRight: Radius.circular(15),
-                                                  bottomRight: Radius.circular(15),
-                                                  topLeft: Radius.circular(8),
-                                                  bottomLeft: Radius.circular(8),
-                                                ),
-                                                boxShadow: const [
-                                                  BoxShadow(
-                                                    color: Colors.black26,
-                                                    blurRadius: 8,
-                                                    offset: Offset(-3, 3),
-                                                  ),
-                                                ],
-                                              ),
-                                              child: Stack(
-                                                children: [
-                                                  // Page lines
-                                                  Positioned(
-                                                    right: 10,
-                                                    top: 12,
-                                                    child: Container(
-                                                      width: 30,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    right: 10,
-                                                    top: 28,
-                                                    child: Container(
-                                                      width: 25,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    right: 10,
-                                                    top: 44,
-                                                    child: Container(
-                                                      width: 20,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    right: 10,
-                                                    top: 60,
-                                                    child: Container(
-                                                      width: 15,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  Positioned(
-                                                    right: 10,
-                                                    top: 76,
-                                                    child: Container(
-                                                      width: 10,
-                                                      height: 4,
-                                                      color: Colors.purple.withOpacity(0.4),
-                                                    ),
-                                                  ),
-                                                  
-                                                  // SCIENCE SYMBOLS - BIG VISIBLE
-                                                  Positioned(
-                                                    left: 5,
-                                                    top: 5,
-                                                    child: Text('⚛️', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 25,
-                                                    top: 15,
-                                                    child: Text('🔬', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    left: 20,
-                                                    top: 30,
-                                                    child: Text('🧪', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 15,
-                                                    top: 45,
-                                                    child: Text('⚡', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    left: 30,
-                                                    top: 60,
-                                                    child: Text('💡', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 8,
-                                                    top: 75,
-                                                    child: Text('🧬', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  
-                                                  // ENGLISH SYMBOLS - BIG VISIBLE
-                                                  Positioned(
-                                                    left: 40,
-                                                    top: 85,
-                                                    child: Text('📖', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 30,
-                                                    top: 90,
-                                                    child: Text('✍️', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    left: 10,
-                                                    top: 100,
-                                                    child: Text('📝', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 12,
-                                                    top: 105,
-                                                    child: Text('🔤', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  
-                                                  // SST SYMBOLS - BIG VISIBLE
-                                                  Positioned(
-                                                    left: 45,
-                                                    top: 20,
-                                                    child: Text('🌍', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 40,
-                                                    top: 35,
-                                                    child: Text('🗺️', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    left: 15,
-                                                    top: 50,
-                                                    child: Text('🏛️', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    right: 20,
-                                                    top: 65,
-                                                    child: Text('📜', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                  Positioned(
-                                                    left: 35,
-                                                    top: 75,
-                                                    child: Text('👑', style: TextStyle(fontSize: 18)),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ),
-                                          
-                                          // Book spine
-                                          Container(
-                                            width: isSmallScreen ? size.width * 0.04 : size.width * 0.025,
-                                            height: isSmallScreen ? size.width * 0.26 : size.width * 0.18,
+                                    );
+                                  },
+                                );
+                              }),
+                              
+                              // Main Book - CIRCLE BADA KAR DIYA
+                              FadeTransition(
+                                opacity: _fadeAnimation,
+                                child: ScaleTransition(
+                                  scale: _scaleAnimation,
+                                  child: AnimatedBuilder(
+                                    animation: Listenable.merge([_floatAnimation, _rotateAnimation, _bookOpenAnimation]),
+                                    builder: (context, child) {
+                                      return Transform.translate(
+                                        offset: Offset(0, _floatAnimation.value),
+                                        child: Transform.rotate(
+                                          angle: _rotateAnimation.value,
+                                          child: Container(
+                                            width: isSmallScreen ? 200 : 280,     // 🔥 PEHLE 140/180 THA, AB 200/280
+                                            height: isSmallScreen ? 200 : 280,    // 🔥 PEHLE 140/180 THA, AB 200/280
                                             decoration: BoxDecoration(
-                                              gradient: LinearGradient(
+                                              gradient: RadialGradient(
                                                 colors: [
-                                                  Colors.purple.shade800,
-                                                  Colors.purple.shade900,
+                                                  Colors.purple.shade300,
+                                                  Colors.purple.shade500,
+                                                  Colors.purple.shade700,
                                                 ],
                                               ),
-                                              borderRadius: BorderRadius.circular(3),
+                                              shape: BoxShape.circle,
                                               boxShadow: const [
                                                 BoxShadow(
-                                                  color: Colors.black26,
-                                                  blurRadius: 4,
+                                                  color: Colors.purple,
+                                                  blurRadius: 40,
+                                                  spreadRadius: 8,
+                                                ),
+                                                BoxShadow(
+                                                  color: Colors.amber,
+                                                  blurRadius: 50,
+                                                  spreadRadius: 10,
+                                                ),
+                                              ],
+                                            ),
+                                            child: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                // Left Page - BADA KAR DIYA
+                                                Transform.translate(
+                                                  offset: Offset(-15 * _bookOpenAnimation.value, 0),
+                                                  child: Container(
+                                                    width: isSmallScreen ? 90 : 130,     // 🔥 PEHLE 60/80 THA, AB 90/130
+                                                    height: isSmallScreen ? 110 : 160,   // 🔥 PEHLE 75/100 THA, AB 110/160
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: const BorderRadius.only(
+                                                        topLeft: Radius.circular(15),
+                                                        bottomLeft: Radius.circular(15),
+                                                        topRight: Radius.circular(5),
+                                                        bottomRight: Radius.circular(5),
+                                                      ),
+                                                      boxShadow: const [
+                                                        BoxShadow(
+                                                          color: Colors.black26,
+                                                          blurRadius: 8,
+                                                          offset: Offset(3, 3),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Stack(
+                                                      children: [
+                                                        Positioned(
+                                                          left: 8,
+                                                          top: 15,
+                                                          child: Container(
+                                                            width: 30,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                        Positioned(
+                                                          left: 8,
+                                                          top: 35,
+                                                          child: Container(
+                                                            width: 25,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                        Positioned(
+                                                          left: 8,
+                                                          top: 55,
+                                                          child: Container(
+                                                            width: 20,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                        Positioned(
+                                                          left: 8,
+                                                          top: 75,
+                                                          child: Container(
+                                                            width: 15,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                        Positioned(
+                                                          left: 8,
+                                                          top: 95,
+                                                          child: Container(
+                                                            width: 10,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                
+                                                // Right Page - BADA KAR DIYA
+                                                Transform.translate(
+                                                  offset: Offset(15 * _bookOpenAnimation.value, 0),
+                                                  child: Container(
+                                                    width: isSmallScreen ? 90 : 130,     // 🔥 PEHLE 60/80 THA, AB 90/130
+                                                    height: isSmallScreen ? 110 : 160,   // 🔥 PEHLE 75/100 THA, AB 110/160
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.white,
+                                                      borderRadius: const BorderRadius.only(
+                                                        topRight: Radius.circular(15),
+                                                        bottomRight: Radius.circular(15),
+                                                        topLeft: Radius.circular(5),
+                                                        bottomLeft: Radius.circular(5),
+                                                      ),
+                                                      boxShadow: const [
+                                                        BoxShadow(
+                                                          color: Colors.black26,
+                                                          blurRadius: 8,
+                                                          offset: Offset(-3, 3),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: Stack(
+                                                      children: [
+                                                        Positioned(
+                                                          right: 8,
+                                                          top: 15,
+                                                          child: Container(
+                                                            width: 30,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                        Positioned(
+                                                          right: 8,
+                                                          top: 35,
+                                                          child: Container(
+                                                            width: 25,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                        Positioned(
+                                                          right: 8,
+                                                          top: 55,
+                                                          child: Container(
+                                                            width: 20,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                        Positioned(
+                                                          right: 8,
+                                                          top: 75,
+                                                          child: Container(
+                                                            width: 15,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                        Positioned(
+                                                          right: 8,
+                                                          top: 95,
+                                                          child: Container(
+                                                            width: 10,
+                                                            height: 3,
+                                                            color: Colors.purple.withOpacity(0.3),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                                
+                                                // Book Spine
+                                                Container(
+                                                  width: isSmallScreen ? 12 : 15,
+                                                  height: isSmallScreen ? 110 : 160,
+                                                  decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      colors: [
+                                                        Colors.purple.shade800,
+                                                        Colors.purple.shade900,
+                                                      ],
+                                                    ),
+                                                    borderRadius: BorderRadius.circular(3),
+                                                  ),
+                                                ),
+                                                
+                                                // Bookmark
+                                                Positioned(
+                                                  top: -5,
+                                                  child: Container(
+                                                    width: 6,
+                                                    height: 22,
+                                                    decoration: BoxDecoration(
+                                                      gradient: const LinearGradient(
+                                                        colors: [
+                                                          Colors.amber,
+                                                          Colors.orange,
+                                                        ],
+                                                      ),
+                                                      borderRadius: BorderRadius.circular(3),
+                                                      boxShadow: const [
+                                                        BoxShadow(
+                                                          color: Colors.amber,
+                                                          blurRadius: 10,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
                                                 ),
                                               ],
                                             ),
                                           ),
-                                        ],
-                                      ),
-                                    ),
+                                        ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
-                            ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         
-                        SizedBox(height: isSmallScreen ? 10 : 12), // KAM KIA
+                        SizedBox(height: isSmallScreen ? 30 : 40),
                         
-                        // BUTTON - UPAR KRO
+                        // BUTTON - SAME VISIBILITY, THODA BADA
                         AnimatedBuilder(
                           animation: _buttonPulseAnimation,
                           builder: (context, child) {
@@ -628,8 +524,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                               child: GestureDetector(
                                 onTap: goToNextPage,
                                 child: Container(
-                                  width: isSmallScreen ? 65 : 75,
-                                  height: isSmallScreen ? 65 : 75,
+                                  width: isSmallScreen ? 75 : 90,     // 🔥 PEHLE 70/85 THA, AB 75/90
+                                  height: isSmallScreen ? 75 : 90,    // 🔥 PEHLE 70/85 THA, AB 75/90
                                   decoration: BoxDecoration(
                                     gradient: const RadialGradient(
                                       colors: [
@@ -642,18 +538,18 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                                     boxShadow: [
                                       BoxShadow(
                                         color: Colors.yellow.withOpacity(0.8),
-                                        blurRadius: 30,
-                                        spreadRadius: 5,
+                                        blurRadius: isSmallScreen ? 25 : 35,
+                                        spreadRadius: isSmallScreen ? 4 : 6,
                                       ),
                                       BoxShadow(
-                                        color: Colors.amber.withOpacity(0.5),
-                                        blurRadius: 40,
-                                        spreadRadius: 10,
+                                        color: Colors.amber.withOpacity(0.6),
+                                        blurRadius: isSmallScreen ? 35 : 45,
+                                        spreadRadius: isSmallScreen ? 6 : 9,
                                       ),
                                     ],
                                     border: Border.all(
                                       color: Colors.white,
-                                      width: 3,
+                                      width: isSmallScreen ? 2 : 3,
                                     ),
                                   ),
                                   child: const Icon(
@@ -667,9 +563,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                           },
                         ),
                         
-                        SizedBox(height: isSmallScreen ? 12 : 15), // KAM KIA
+                        SizedBox(height: isSmallScreen ? 20 : 25),
                         
-                        // TAP TEXT
+                        // Tap Text
                         Text(
                           '✨ tap to begin ✨',
                           style: TextStyle(
@@ -677,7 +573,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                             color: Colors.yellow.withOpacity(0.9),
                             fontWeight: FontWeight.w600,
                             letterSpacing: 2,
-                            shadows: [
+                            shadows: const [
                               Shadow(
                                 color: Colors.purple,
                                 blurRadius: 15,
@@ -685,6 +581,9 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                             ],
                           ),
                         ),
+                        
+                        // Extra bottom padding
+                        SizedBox(height: isSmallScreen ? 25 : 30),
                       ],
                     ),
                   ),
