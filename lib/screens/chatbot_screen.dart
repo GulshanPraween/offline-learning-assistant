@@ -1,7 +1,9 @@
+import '../services/rag_service.dart';
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import 'package:flutter_tts/flutter_tts.dart';
 import 'dart:math';
+import '../widgets/math_formula.dart';
 import 'dart:async';
 import '../services/ollama_service.dart';
 
@@ -457,28 +459,38 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
     return "🤔 Let me think...";
   }
 
-  @override
-  void initState() {
-    super.initState();
-    
-    _bgPulseController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
-    
-    _effectTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      if (mounted) setState(() => _currentEffectIndex = (_currentEffectIndex + 1) % 100);
-    });
-    
-    _speech = stt.SpeechToText();
-    _initSpeech();
-    _flutterTts = FlutterTts();
-    _initTts();
+@override
+void initState() {
+  super.initState();
+  
+  _bgPulseController = AnimationController(
+    vsync: this,
+    duration: const Duration(seconds: 2),
+  )..repeat(reverse: true);
+  
+  _effectTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
+    if (mounted) setState(() => _currentEffectIndex = (_currentEffectIndex + 1) % 100);
+  });
+  
+  _speech = stt.SpeechToText();
+  _initSpeech();
+  _flutterTts = FlutterTts();
+  _initTts();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _addBotMessage("✨ Hi! I'm your learning assistant.How can i help you?");
-    });
-  }
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    _addBotMessage("✨ Hi! I'm your learning assistant.How can i help you?");
+  });
+  
+  // 🔥🔥🔥 YEH NAYA CODE ADD KARO (RAG INITIALIZE) 🔥🔥🔥
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    try {
+      await RagService.init();
+      print('✅ RAG Service Ready - NCERT database loaded');
+    } catch (e) {
+      print('❌ RAG Service Error: $e');
+    }
+  });
+}
 
   void _initSpeech() async {
     _isAvailable = await _speech.initialize(
@@ -567,69 +579,80 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
   }
 
   Future<void> _sendMessage() async {
-    String userMessage = _textController.text.trim();
-    if (userMessage.isEmpty || _isProcessing) return;
-    
-    _lastProcessedMessage = userMessage;
-    _textController.clear();
-    
-    // Subject detection for background
-    if (userMessage.toLowerCase().contains("java") || userMessage.toLowerCase().contains("computer")) {
-      setState(() => _currentSubject = "computer");
-    } else if (userMessage.toLowerCase().contains("circle") || userMessage.toLowerCase().contains("triangle") ||
-               userMessage.toLowerCase().contains("math")) {
-      setState(() => _currentSubject = "math");
-    } else if (userMessage.toLowerCase().contains("reflection") || userMessage.toLowerCase().contains("circuit") ||
-               userMessage.toLowerCase().contains("physics")) {
-      setState(() => _currentSubject = "physics");
-    } else if (userMessage.toLowerCase().contains("brain") || userMessage.toLowerCase().contains("heart") ||
-               userMessage.toLowerCase().contains("biology")) {
-      setState(() => _currentSubject = "biology");
-    } else if (userMessage.toLowerCase().contains("atom") || userMessage.toLowerCase().contains("acid") ||
-               userMessage.toLowerCase().contains("chemistry")) {
-      setState(() => _currentSubject = "chemistry");
-    } else if (userMessage.toLowerCase().contains("noun") || userMessage.toLowerCase().contains("verb") ||
-               userMessage.toLowerCase().contains("english")) {
-      setState(() => _currentSubject = "english");
-    } else if (userMessage.toLowerCase().contains("gandhi") || userMessage.toLowerCase().contains("history") ||
-               userMessage.toLowerCase().contains("indian") || userMessage.toLowerCase().contains("world war")) {
-      setState(() => _currentSubject = "history");
-    } else if (userMessage.toLowerCase().contains("latitude") || userMessage.toLowerCase().contains("river") ||
-               userMessage.toLowerCase().contains("geography") || userMessage.toLowerCase().contains("mountain")) {
-      setState(() => _currentSubject = "geography");
-    } else {
-      setState(() => _currentSubject = "general");
-    }
-    
-    setState(() {
-      _isProcessing = true;
-      _addUserMessage(userMessage);
-      _isTyping = true;
-    });
-    
-    // Try hardcoded answer first (instant)
-    String botReply = _getAnswer(userMessage);
-    
-    // If not found, use AI (fast - 2-4 seconds)
-    if (botReply == "🤔 Let me think..." && _useAIForUnknown) {
-      try {
-        String aiReply = await _ollamaService.generateResponse(userMessage);
-        if (aiReply.isNotEmpty && !aiReply.contains("⚠️")) {
-          botReply = aiReply;
-        }
-      } catch (e) {
-        botReply = "⚠️ AI busy, please try again.";
-      }
-    }
-    
-    setState(() {
-      _isTyping = false;
-      _isProcessing = false;
-    });
-    
-    _addBotMessage(botReply);
+  String userMessage = _textController.text.trim();
+  if (userMessage.isEmpty || _isProcessing) return;
+  
+  _lastProcessedMessage = userMessage;
+  _textController.clear();
+  
+  // Subject detection for background
+  if (userMessage.toLowerCase().contains("java") || userMessage.toLowerCase().contains("computer")) {
+    setState(() => _currentSubject = "computer");
+  } else if (userMessage.toLowerCase().contains("circle") || userMessage.toLowerCase().contains("triangle") ||
+             userMessage.toLowerCase().contains("math")) {
+    setState(() => _currentSubject = "math");
+  } else if (userMessage.toLowerCase().contains("reflection") || userMessage.toLowerCase().contains("circuit") ||
+             userMessage.toLowerCase().contains("physics")) {
+    setState(() => _currentSubject = "physics");
+  } else if (userMessage.toLowerCase().contains("brain") || userMessage.toLowerCase().contains("heart") ||
+             userMessage.toLowerCase().contains("biology")) {
+    setState(() => _currentSubject = "biology");
+  } else if (userMessage.toLowerCase().contains("atom") || userMessage.toLowerCase().contains("acid") ||
+             userMessage.toLowerCase().contains("chemistry")) {
+    setState(() => _currentSubject = "chemistry");
+  } else if (userMessage.toLowerCase().contains("noun") || userMessage.toLowerCase().contains("verb") ||
+             userMessage.toLowerCase().contains("english")) {
+    setState(() => _currentSubject = "english");
+  } else if (userMessage.toLowerCase().contains("gandhi") || userMessage.toLowerCase().contains("history") ||
+             userMessage.toLowerCase().contains("indian") || userMessage.toLowerCase().contains("world war")) {
+    setState(() => _currentSubject = "history");
+  } else if (userMessage.toLowerCase().contains("latitude") || userMessage.toLowerCase().contains("river") ||
+             userMessage.toLowerCase().contains("geography") || userMessage.toLowerCase().contains("mountain")) {
+    setState(() => _currentSubject = "geography");
+  } else {
+    setState(() => _currentSubject = "general");
   }
-
+  
+  setState(() {
+    _isProcessing = true;
+    _addUserMessage(userMessage);
+    _isTyping = true;
+  });
+  
+  // 🔥🔥🔥 RAG SEARCH - NCERT DATABASE MEIN DHUNDO 🔥🔥🔥
+  List<String> ncertContent = [];
+  try {
+    ncertContent = await RagService.search(userMessage);
+    print('📚 RAG Search found: ${ncertContent.length} results');
+  } catch (e) {
+    print('❌ RAG Search error: $e');
+  }
+  
+  String botReply;
+  
+  if (ncertContent.isNotEmpty) {
+    // 🔥 NCERT SE MIL GAYA - CONTEXT KE SAATH ANSWER
+    try {
+      String context = ncertContent.join('\n\n');
+      botReply = await _ollamaService.generateResponseWithContext(userMessage, context);
+      print('✅ Answer from NCERT context');
+    } catch (e) {
+      print('❌ NCERT answer error: $e');
+      botReply = await _ollamaService.generateResponse(userMessage);
+    }
+  } else {
+    // 🔥 NCERT MEIN NAHI MILA - NORMAL AI ANSWER
+    botReply = await _ollamaService.generateResponse(userMessage);
+    print('🤖 Answer from AI (no NCERT context)');
+  }
+  
+  setState(() {
+    _isTyping = false;
+    _isProcessing = false;
+  });
+  
+  _addBotMessage(botReply);
+}
   @override
   void dispose() {
     _bgPulseController.dispose();
@@ -908,8 +931,24 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
     );
   }
 
-  Widget _buildMessageBubble(String text, bool isUser, Map<String, dynamic> effect) {
-    String cleanText = text.replaceAll('**', '');
+Widget _buildMessageBubble(String text, bool isUser, Map<String, dynamic> effect) {
+  String cleanText = text.replaceAll('**', '');
+  
+  // 🔥 Check if text contains LaTeX formula
+  bool hasLatex = cleanText.contains(r'\(') || cleanText.contains(r'\)') || 
+                  cleanText.contains(r'\[') || cleanText.contains(r'\]') ||
+                  cleanText.contains('\\frac') || cleanText.contains('\\sqrt') ||
+                  cleanText.contains('\\pm') || cleanText.contains('^') && cleanText.contains('{');
+  
+  // 🔥 If has LaTeX, render as math formula
+  if (hasLatex) {
+    // Extract LaTeX content (remove \( and \) or \[ and \])
+    String latexContent = cleanText
+        .replaceAll(r'\(', '')
+        .replaceAll(r'\)', '')
+        .replaceAll(r'\[', '')
+        .replaceAll(r'\]', '')
+        .trim();
     
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
@@ -935,7 +974,7 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                   ),
                 ],
               ),
-              child: const Icon(Icons.auto_awesome, size: 20, color: Colors.white),
+              child: const Icon(Icons.functions, size: 20, color: Colors.white),
             ),
           
           Flexible(
@@ -991,10 +1030,10 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(Icons.auto_awesome, size: 12, color: effect["accentColor"]),
+                          Icon(Icons.functions, size: 12, color: effect["accentColor"]),
                           const SizedBox(width: 4),
                           Text(
-                            effect["name"],
+                            "Formula",
                             style: TextStyle(
                               color: effect["accentColor"],
                               fontSize: 11,
@@ -1005,12 +1044,21 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
                       ),
                     ),
                   
-                  Text(
-                    cleanText,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      height: 1.4,
+                  // 🔥 Formula rendering - using styled text
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: SelectableText(
+                      latexContent,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontFamily: 'monospace',
+                        letterSpacing: 1,
+                      ),
                     ),
                   ),
                   
@@ -1056,7 +1104,153 @@ class _ChatbotScreenState extends State<ChatbotScreen> with TickerProviderStateM
       ),
     );
   }
-
+  
+  // 🔥 Normal text (no LaTeX)
+  return Container(
+    margin: const EdgeInsets.symmetric(vertical: 6),
+    child: Row(
+      mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        if (!isUser)
+          Container(
+            margin: const EdgeInsets.only(right: 8, top: 4),
+            width: 38,
+            height: 38,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [effect["primaryColor"], effect["secondaryColor"]],
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: effect["primaryColor"].withOpacity(0.5),
+                  blurRadius: 10,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: const Icon(Icons.auto_awesome, size: 20, color: Colors.white),
+          ),
+        
+        Flexible(
+          child: Container(
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              gradient: isUser
+                  ? LinearGradient(
+                      colors: [effect["primaryColor"], effect["secondaryColor"]],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    )
+                  : LinearGradient(
+                      colors: [
+                        const Color(0xFF1E2A3A).withOpacity(0.95),
+                        const Color(0xFF0A1929).withOpacity(0.95),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(20),
+                topRight: const Radius.circular(20),
+                bottomLeft: Radius.circular(isUser ? 20 : 5),
+                bottomRight: Radius.circular(isUser ? 5 : 20),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: (isUser ? effect["primaryColor"] : effect["accentColor"]).withOpacity(0.3),
+                  blurRadius: 15,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: !isUser
+                  ? Border.all(
+                      color: effect["accentColor"].withOpacity(0.3),
+                      width: 1,
+                    )
+                  : null,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!isUser)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 6),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: effect["accentColor"].withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(15),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.auto_awesome, size: 12, color: effect["accentColor"]),
+                        const SizedBox(width: 4),
+                        Text(
+                          effect["name"],
+                          style: TextStyle(
+                            color: effect["accentColor"],
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                
+                Text(
+                  cleanText,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    height: 1.4,
+                  ),
+                ),
+                
+                const SizedBox(height: 4),
+                
+                // Time stamp
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Text(
+                    "${DateTime.now().hour.toString().padLeft(2, '0')}:${DateTime.now().minute.toString().padLeft(2, '0')}",
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.4),
+                      fontSize: 10,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        
+        if (isUser)
+          Container(
+            margin: const EdgeInsets.only(left: 8, top: 4),
+            width: 38,
+            height: 38,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Colors.grey, Color(0xFF2C3E50)],
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey,
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
+            ),
+            child: const Icon(Icons.person, size: 20, color: Colors.white),
+          ),
+      ],
+    ),
+  );
+}
   Widget _buildTypingIndicator(Map<String, dynamic> effect) {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
